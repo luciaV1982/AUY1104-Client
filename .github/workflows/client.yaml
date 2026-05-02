@@ -15,4 +15,4 @@ jobs:
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      K3S_SSH_PRIVATE_KEY: ${{ secrets.K3S_SSH_PRIVATE_KEY }}
+      EA2_SSH_PRIVATE_KEY: ${{ secrets.K3S_SSH_PRIVATE_KEY }}
