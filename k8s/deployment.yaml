@@ -13,7 +13,7 @@ spec:
         app: demo-api
     spec:
       containers:
-      - name: demo-api
-        image: image: luciav1982/demo-api-lucia:latest
-        ports:
-        - containerPort: 3000
+        - name: demo-api
+          image: luciav1982/demo-api-lucia:latest
+          ports:
+            - containerPort: 3000
