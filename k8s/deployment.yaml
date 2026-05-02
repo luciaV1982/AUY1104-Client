@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: demo-api
-          image: image: luciav1982/demo-api-lucia:v1
+          image: luciav1982/demo-api-lucia:v1
           ports:
             - containerPort: 3000
