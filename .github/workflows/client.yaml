@@ -10,7 +10,7 @@ jobs:
     with:
       image-name: demo-api-lucia
       image-tag: v1
-      k3s-server-public-ip: ${{ secrets.K3S_SERVER_PUBLIC_IP }}
+      k3s-server-public-ip: ${{ vars.K3S_SERVER_PUBLIC_IP }}
 
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
