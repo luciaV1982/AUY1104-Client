@@ -1,0 +1,16 @@
+name: Cliente - Publicar API en K8s
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: asanchezo-duoc/AUY1104-SharedWorkflows/.github/workflows/deploy-api.yaml@main
+
+    with:
+      image-name: demo-api-lucia
+      image-tag: v1
+
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
