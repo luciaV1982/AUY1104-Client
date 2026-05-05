@@ -5,7 +5,7 @@ on:
 
 jobs:
   deploy:
-    uses: asanchezo-duoc/AUY1104-SharedWorkflows/.github/workflows/deploy-api.yaml@main
+    uses: luciaV1982/AUY1104-SharedWorkflows/.github/workflows/deploy-api.yaml@main
 
     with:
       image-name: demo-api-lucia
