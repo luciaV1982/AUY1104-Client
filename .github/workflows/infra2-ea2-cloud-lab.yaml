@@ -23,7 +23,7 @@ on:
 
 jobs:
   delegar:
-    uses: uses: luciaV1982/AUY1104-SharedWorkflows/.github/workflows/deploy-api.yaml@main
+    uses: luciaV1982/AUY1104-SharedWorkflows/.github/workflows/deploy-api.yaml@main
 
     with:
       aws_region: ${{ inputs.aws_region }}
