@@ -7,7 +7,7 @@ on:
 
 jobs:
   release:
-    uses: uses: luciaV1982/AUY1104-SharedWorkflows/.github/workflows/deploy-api.yaml@main
+    uses: luciaV1982/AUY1104-SharedWorkflows/.github/workflows/deploy-api.yaml@main
     with:
       image-name: lucia-api
       image-tag: ${{ github.ref_name }}
