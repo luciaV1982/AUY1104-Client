@@ -11,6 +11,7 @@ jobs:
     with:
       image-name: lucia-api
       image-tag: ${{ github.ref_name }}
+      k3s-server-public-ip: 54.144.216.151
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
