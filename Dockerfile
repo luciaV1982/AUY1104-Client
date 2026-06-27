@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:999999-inexistente
 
 WORKDIR /app
 
