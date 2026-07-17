@@ -243,3 +243,82 @@ Si Green no responde correctamente, el tráfico permanecerá en Blue.
 
 Service de Preview creado. Pendiente de validación en K3s.
 
+## 10. Validación local de la arquitectura inicial
+
+### Pruebas realizadas
+
+Se ejecutaron pruebas automatizadas y manuales sobre el microservicio antes de continuar con la automatización del despliegue.
+
+Comando ejecutado:
+
+```powershell
+npm.cmd test
+
+## 11. Detección automática del ambiente activo
+
+### Objetivo
+
+Permitir que el workflow reutilizable determine si el tráfico de producción está siendo enviado al ambiente Blue o Green.
+
+### Archivo modificado
+
+- `AUY1104-SharedWorkflows/.github/workflows/deploy-api.yaml`
+
+### Implementación
+
+Se agregó una etapa que consulta el selector `slot` del Service `demo-api-service`.
+
+El workflow guarda dos valores:
+
+- `active-slot`: ambiente que actualmente recibe tráfico;
+- `target-slot`: ambiente inactivo donde se desplegará la nueva versión.
+
+### Lógica aplicada
+
+- Si el Service apunta a Blue, el ambiente candidato será Green.
+- Si el Service apunta a Green, el ambiente candidato será Blue.
+- Si el Service todavía no existe, se asume Blue como ambiente inicial.
+
+### Estado
+
+Lógica agregada. Pendiente de validación en GitHub Actions.
+
+### Evidencia
+
+- EFT-09-Workflow-deteccion-ambiente-activo.png
+
+## 13. Configuración dinámica del Service Preview
+
+### Objetivo
+
+Permitir que el Service de Preview apunte automáticamente al ambiente seleccionado como candidato.
+
+### Problema identificado
+
+El manifiesto inicial de Preview utilizaba de forma fija el selector `slot: green`. Esta configuración no serviría cuando Blue se convirtiera en el siguiente ambiente candidato.
+
+### Archivo modificado
+
+- `AUY1104-SharedWorkflows/.github/workflows/deploy-api.yaml`
+
+### Implementación
+
+Después de desplegar el ambiente candidato, el workflow:
+
+1. aplica el manifiesto `service-preview.yaml`;
+2. modifica su selector mediante `kubectl patch`;
+3. asigna dinámicamente el valor de `target-slot`;
+4. consulta el selector final para confirmar la configuración.
+
+### Ejemplos
+
+- candidato Green → Preview utiliza `slot: green`;
+- candidato Blue → Preview utiliza `slot: blue`.
+
+### Justificación técnica
+
+El Service Preview debe dirigir sus solicitudes exclusivamente al ambiente candidato para que la validación de salud se realice sobre la nueva versión y no sobre el ambiente que ya atiende producción.
+
+### Estado
+
+Selector dinámico de Preview implementado. Pendiente de ejecutar el Health Check.

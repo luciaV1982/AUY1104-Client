@@ -1,4 +1,4 @@
-name: Cliente - Publicar API en K8s
+name: TechMarket Orders - Ejecutar Pipeline Blue-Green
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ jobs:
 
     with:
       image-name: demo-api-lucia
-      image-tag: v1
+      image-tag: ${{ github.sha }}
       k3s-server-public-ip: ${{ vars.K3S_SERVER_PUBLIC_IP }}
 
     secrets:
