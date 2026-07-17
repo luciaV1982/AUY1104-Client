@@ -322,3 +322,161 @@ El Service Preview debe dirigir sus solicitudes exclusivamente al ambiente candi
 ### Estado
 
 Selector dinámico de Preview implementado. Pendiente de ejecutar el Health Check.
+
+## 15. Refactorización completa del workflow Blue-Green
+
+### Objetivo
+
+Reestructurar el workflow reutilizable para implementar de manera clara el ciclo completo de despliegue Blue-Green y su mecanismo de remediación automática.
+
+### Repositorio modificado
+
+- `AUY1104-SharedWorkflows`
+
+### Archivo modificado
+
+- `.github/workflows/deploy-api.yaml`
+
+### Flujo implementado
+
+1. ejecución de pruebas automatizadas;
+2. construcción de la imagen Docker;
+3. publicación de la imagen en Docker Hub;
+4. conexión SSH con la instancia EC2;
+5. detección del ambiente activo;
+6. selección del ambiente candidato;
+7. despliegue de la imagen en el candidato;
+8. configuración dinámica del Service Preview;
+9. validación del endpoint `/health`;
+10. promoción del candidato mediante el selector del Service;
+11. validación final de producción;
+12. rollback automático del tráfico si ocurre un fallo.
+
+### Remediación automática
+
+La recuperación ya no utiliza `kubectl rollout undo`, porque Blue y Green son Deployments independientes.
+
+Si una validación falla después de la promoción, el workflow modifica nuevamente el selector de `demo-api-service` para devolver el tráfico al ambiente estable anterior.
+
+### Variables dinámicas
+
+El workflow inyecta:
+
+- `APP_ENV`, según el slot candidato;
+- `APP_VERSION`, utilizando la etiqueta de la imagen;
+- `FORCE_ERROR=false` durante el despliegue normal.
+
+### Estado
+
+Workflow Blue-Green refactorizado. Pendiente de validación en GitHub Actions.
+
+## 14. Validación del Pipeline Blue-Green
+
+### Objetivo
+Validar el funcionamiento completo del pipeline Blue-Green ejecutando el workflow desde GitHub Actions y verificando el despliegue automatizado de la aplicación en Kubernetes.
+
+### Repositorios involucrados
+- `AUY1104-Client`
+- `AUY1104-SharedWorkflows`
+
+### Validaciones realizadas
+Se ejecutó el pipeline completo desde GitHub Actions comprobando el correcto funcionamiento de todas sus etapas:
+
+1. Ejecución de pruebas automatizadas.
+2. Construcción de la imagen Docker.
+3. Publicación de la imagen en Docker Hub.
+4. Conexión SSH con la instancia EC2.
+5. Detección del ambiente activo.
+6. Despliegue del ambiente candidato.
+7. Configuración del Service Preview.
+8. Validación del endpoint `/health`.
+9. Promoción del candidato a producción.
+10. Validación del servicio de producción.
+11. Visualización del estado final del clúster.
+
+### Resultados obtenidos
+Durante la primera ejecución el pipeline realizó correctamente el despliegue inicial, promoviendo el ambiente Blue como versión de producción.
+
+Posteriormente se ejecutó nuevamente el workflow, comprobando la correcta transición desde Blue hacia Green, validando que la estrategia Blue-Green funciona correctamente y permite realizar despliegues sucesivos sin interrupción del servicio.
+
+### Estado
+Pipeline completamente validado y operativo.
+
+### Evidencias
+- `EFT-12-Pipeline-primer-despliegue-exitoso.png`
+- `EFT-13-Pipeline-segundo-despliegue-Blue-a-Green.png`
+- `EFT-14-Detalle-pipeline-Blue-Green-exitoso.png`
+
+---
+
+## 15. Refactorización completa del workflow Blue-Green
+
+### Estado
+Workflow reutilizable completamente implementado y validado mediante múltiples ejecuciones exitosas del pipeline.
+
+### Evidencias
+- `EFT-11-Workflow-Blue-Green-completo.png`
+- `EFT-12-Pipeline-primer-despliegue-exitoso.png`
+- `EFT-13-Pipeline-segundo-despliegue-Blue-a-Green.png`
+
+---
+
+## 16. Verificación del clúster Kubernetes
+
+### Objetivo
+Comprobar el estado final del clúster Kubernetes después de completar el despliegue Blue-Green.
+
+### Validaciones realizadas
+Se verificó el estado de los recursos desplegados mediante comandos `kubectl`. Las comprobaciones incluyeron:
+
+- Estado de los Pods.
+- Estado de los Services.
+- Asociación correcta entre Services y Deployments.
+- Disponibilidad del endpoint de producción.
+
+### Resultados obtenidos
+Los Pods quedaron en estado `Running`, confirmando que la aplicación fue desplegada correctamente.
+
+Los Services `demo-api-service` y `demo-api-preview` quedaron creados y configurados correctamente para dirigir el tráfico hacia el ambiente correspondiente.
+
+Finalmente se comprobó el endpoint `/health`, obteniendo respuesta HTTP 200 OK, confirmando que la aplicación quedó disponible en producción.
+
+### Estado
+Infraestructura Kubernetes validada correctamente.
+
+### Evidencias
+- `EFT-15-Pods-Kubernetes-Running.png`
+- `EFT-16-Services-Kubernetes.png`
+- `EFT-17-HealthCheck-Produccion-HTTP200.png`
+
+---
+
+## 17. Validación del mecanismo de rollback automático
+
+### Objetivo
+Verificar que el workflow incorpore un mecanismo de recuperación automática para restaurar el ambiente estable en caso de que una validación falle.
+
+### Implementación
+El workflow fue configurado para ejecutar el paso **Rollback automático** del tráfico únicamente cuando alguna etapa crítica del despliegue genera un error.
+
+En caso de fallo, el selector del Service de producción vuelve a apuntar automáticamente al ambiente previamente estable, restableciendo el servicio sin intervención manual.
+
+Durante las ejecuciones realizadas no fue necesario activar este mecanismo debido a que todas las validaciones finalizaron exitosamente.
+
+### Estado
+Rollback automático implementado y preparado para responder ante fallos durante el despliegue.
+
+### Evidencias
+- `EFT-18-Workflow-Rollback-Automatico-Skipped.png`
+
+# Conclusión
+
+Durante el desarrollo de esta Evaluación Final Transversal se logró transformar un proceso de despliegue tradicional en una estrategia de entrega continua mucho más robusta, automatizada y resiliente, integrando los conocimientos adquiridos durante el semestre en torno a GitHub Actions, Docker, Kubernetes y prácticas DevOps.
+
+Se implementó un pipeline reutilizable mediante **GitHub Actions**, capaz de ejecutar pruebas automatizadas, construir y publicar imágenes Docker, desplegar la aplicación en un clúster **K3s sobre Amazon EC2**, aplicar una estrategia **Blue-Green** y validar automáticamente el estado de la nueva versión antes de promoverla a producción.
+
+Como parte de la estrategia de despliegue, se incorporó un **Service Preview** para validar el ambiente candidato mediante el endpoint `/health`, evitando afectar la versión que se encuentra atendiendo tráfico de producción. Además, se implementó un mecanismo de **rollback automático**, preparado para restaurar el ambiente estable si alguna validación crítica falla durante el proceso de despliegue.
+
+Las múltiples ejecuciones exitosas del pipeline permitieron comprobar tanto el despliegue inicial como la transición entre los ambientes **Blue** y **Green**, verificando el correcto funcionamiento de la automatización, la disponibilidad del servicio y la capacidad del sistema para soportar despliegues repetibles sin interrupciones.
+
+Finalmente, el proyecto permitió consolidar competencias relacionadas con la automatización de procesos CI/CD, la administración de aplicaciones sobre Kubernetes, la implementación de estrategias modernas de despliegue y la incorporación de mecanismos de resiliencia orientados a reducir el riesgo durante la publicación de nuevas versiones en producción.
