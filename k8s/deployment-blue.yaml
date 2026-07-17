@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: demo-api-blue
+  labels:
+    app: demo-api
+    slot: blue
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: demo-api
+      slot: blue
+
+  template:
+    metadata:
+      labels:
+        app: demo-api
+        slot: blue
+
+    spec:
+      containers:
+        - name: demo-api
+          image: luciav1982/demo-api-lucia:latest
+
+          ports:
+            - name: http
+              containerPort: 3000
+
+          env:
+            - name: PORT
+              value: "3000"
+
+            - name: APP_ENV
+              value: "blue"
+
+            - name: APP_VERSION
+              value: "1.0.0"
+
+            - name: FORCE_ERROR
+              value: "false"
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
