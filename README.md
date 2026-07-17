@@ -355,6 +355,58 @@ Se observa la ejecución satisfactoria de:
 
 ---
 
+---
+
+# ☁️ Validación del despliegue en AWS
+
+Una vez finalizado el proceso de Integración y Entrega Continua, se verificó que la aplicación quedara correctamente desplegada sobre una instancia **Amazon EC2** ejecutando un clúster **Kubernetes K3s**.
+
+Las validaciones realizadas permitieron comprobar que toda la infraestructura quedó operativa y que el pipeline automatizó correctamente el despliegue de la aplicación sobre AWS.
+
+Durante la validación se confirmó:
+
+- Instancia Amazon EC2 en estado **Running**.
+- Nodo Kubernetes K3s en estado **Ready**.
+- Deployments **Blue** y **Green** en ejecución.
+- Services de **Producción** y **Preview** correctamente publicados.
+- Acceso exitoso al microservicio mediante la dirección IP pública de la instancia EC2 utilizando los puertos NodePort configurados.
+
+Estas verificaciones evidencian que la integración entre **GitHub Actions**, **Docker**, **Kubernetes K3s** y **AWS** fue implementada correctamente, permitiendo realizar despliegues automáticos sobre infraestructura Cloud.
+
+---
+
+## Evidencias
+
+### Instancia Amazon EC2 en ejecución
+
+La siguiente evidencia muestra la instancia utilizada para el laboratorio ejecutándose correctamente en AWS.
+
+![EC2 Running](docs/EVIDENCIAS/EFT-19-EC2-Running.png)
+
+---
+
+### Validación del Service de Producción
+
+Se verificó el acceso al Service de Producción utilizando la IP pública de la instancia EC2 y el puerto **30090**, obteniendo una respuesta correcta del microservicio desplegado.
+
+![Service Producción](docs/EVIDENCIAS/EFT-20-Service-Produccion.png)
+
+---
+
+### Validación del Service Preview
+
+Posteriormente se comprobó el funcionamiento del Service Preview utilizando el puerto **30091**, confirmando la disponibilidad del ambiente de previsualización.
+
+![Service Preview](docs/EVIDENCIAS/EFT-21-Service-Preview.png)
+
+---
+
+### Estado del clúster Kubernetes
+
+Finalmente se verificó el estado del clúster ejecutando comandos de administración de Kubernetes, confirmando que el nodo se encontraba en estado **Ready**, los Pods en ejecución (**Running**) y los Services correctamente publicados.
+
+![Kubernetes Running](docs/EVIDENCIAS/EFT-22-Kubernetes-Running.png)
+
 # 🔄 Rollback automático
 
 Como parte de la estrategia Blue-Green, se implementó un mecanismo de **Rollback Automático** para restaurar el ambiente estable si alguna de las validaciones críticas falla durante el proceso de despliegue.
